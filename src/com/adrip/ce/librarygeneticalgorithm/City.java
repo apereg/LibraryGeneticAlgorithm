@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 public class City {
 
-    private int id;
+    private final int id;
 
-    private int[] distances;
+    private final int[] distances;
 
     public City(int id, int[] distances){
         this.id = id;

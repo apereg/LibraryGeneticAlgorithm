@@ -21,4 +21,8 @@ public class Colors {
     public static final String WHITE_BACKGROUND = "\033[0;107m";
     public static final String RESET = "\033[0m";
 
+    /* Clase estatica. */
+    private Colors() {
+    }
+
 }

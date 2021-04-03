@@ -1,20 +1,21 @@
 package com.adrip.ce.librarygeneticalgorithm;
 
-import java.util.ArrayList;
+import com.adrip.ce.Main;
+import com.adrip.ce.utils.Colors;
+import com.adrip.ce.utils.Utils;
+import org.jgap.IChromosome;
+
 import java.util.LinkedList;
 import java.util.List;
-
-import com.adrip.ce.Main;
-import org.jgap.*;
 
 public class Conurbation {
 
     private static Conurbation instance;
 
-    private List<City> cities;
+    private final List<City> cities;
 
     public static Conurbation getConurbation() {
-        if(instance == null)
+        if (instance == null)
             instance = new Conurbation();
         return instance;
     }
@@ -23,28 +24,13 @@ public class Conurbation {
         this.cities = new LinkedList<>();
         for (int i = 0; i < Main.getCitiesNumber(); i++)
             this.cities.add(new City(i, Main.getDistances(i)));
-
-        System.out.println(this.cities);
-    }
-
-    public String printMap() {
-
-        String map = "    "+this.cities.get(1).getDistance(0)+"\n"
-                + "  A————B\n"
-                + "  |\\10/|\n"
-                + "40| \\/5|15\n"
-                + "  | /\\ |\n"
-                + "  C————D\n"
-                + "    10";
-
-        return map;
     }
 
     public int tripLength(IChromosome trip) {
 
         int length = 0;
 
-        ArrayList<String> chromosome = new ArrayList<String>();
+        List<String> chromosome = new LinkedList<>();
         for (int i = 0; i < trip.getGenes().length; i++) {
             chromosome.add(trip.getGene(i).getAllele().toString());
         }
@@ -78,7 +64,7 @@ public class Conurbation {
         return length;
     }
 
-    public boolean validTrip(ArrayList<String> trip) {
+    public boolean validTrip(List<String> trip) {
         for (int i = 0; i < trip.size() - 1; i++)
             for (int j = i + 1; j < trip.size(); j++)
                 if (trip.get(i).equals(trip.get(j)))
@@ -86,18 +72,45 @@ public class Conurbation {
         return true;
     }
 
-    public int maxValue(){
+    public int maxValue() {
         return 20 + 40 + 10 + 5 + 15 + 10;
     }
 
-    public City getCity(int id){
+    public City getCity(int id) {
         return this.cities.get(id);
     }
 
-    public int getDistance(int cityA, int cityB){
+    public int getDistance(int cityA, int cityB) {
         return this.cities.get(cityA).getDistance(cityB);
     }
 
-
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("Mapa ciudades:\n");
+        str.append(Colors.RED+"A"+Colors.RESET+"----------------"+Colors.RED+"C"+Colors.RESET+"---------------"+Colors.RED+"E"+Colors.RESET+"\n");
+        str.append("|\\              /|\\             /|\n");
+        str.append("| \\            / | \\           / |\n");
+        str.append("|  \\          /  |  \\         /  |\n");
+        str.append("|   \\        /   |   \\       /   |\n");
+        str.append("|    \\      /    |    \\     /    |\n");
+        str.append("|     \\    /     |     \\   /     |\n");
+        str.append("|      \\  /      |      \\ /      |\n");
+        str.append("|       \\/       |       \\       |\n");
+        str.append("|       /\\       |      / \\      |\n");
+        str.append("|      /  \\      |     /   \\     |\n");
+        str.append("|     /    \\     |    /     \\    |\n");
+        str.append("|    /      \\    |   /       \\   |\n");
+        str.append("|   /        \\   |  /         \\  |\n");
+        str.append("|  /          \\  | /           \\ |\n");
+        str.append("| /            \\ |/             \\|\n");
+        str.append(Colors.RED+"D"+Colors.RESET+"----------------"+Colors.RED+"D"+Colors.RESET+"---------------"+Colors.RED+"F"+Colors.RESET+"\n");
+        str.append("\nDistancias:\n");
+        for (int i = 0; i < Main.getCitiesNumber() - 1; i++)
+            for (int j = 0; j < Main.getCitiesNumber(); j++)
+                if (i < j)
+                    str.append("\tDistancia ").append(Utils.getCityCode(i)).append(Utils.getCityCode(j)).append(": ").append(this.cities.get(i).getDistance(j)).append("\n");
+        return str.deleteCharAt(str.length()-1).toString();
+    }
 
 }

@@ -67,17 +67,6 @@ public class MyGreedyCrossover
 
     private int m_startOffset = 1;
 
-    /**
-     * Default constructor for dynamic instantiation.<p>
-     * Attention: The configuration used is the one set with the static method
-     * Genotype.setConfiguration.
-     *
-     * @throws InvalidConfigurationException
-     *
-     * @author Klaus Meffert
-     * @since 2.6
-     * @since 3.0 (since 2.0 without a_configuration)
-     */
     public MyGreedyCrossover()
             throws InvalidConfigurationException {
         super(Genotype.getStaticConfiguration());
@@ -165,9 +154,10 @@ public class MyGreedyCrossover
         }
     }
 
-    protected Gene[] operate(final Gene[] a_g1, final Gene[] a_g2) {
 
-        Gene[] aux_a_g2 = new Gene[4];
+    protected Gene[] operate(final Gene[] a_g1, final Gene[] a_g2) {
+    /*
+        Gene[] aux_a_g2 = new Gene[6];
         for (int j = 0; j < a_g2.length; j++) {
             aux_a_g2[j] = a_g2[j].newGene();
             aux_a_g2[j].setAllele(a_g2[j].getAllele());
@@ -179,26 +169,19 @@ public class MyGreedyCrossover
             i = i + 1;
         }
 
-        Gene[] auxGenes = new Gene[4];
+        Gene[] auxGenes = new Gene[6];
         for (int j = 0; j < a_g2.length; j++) {
             auxGenes[j] = aux_a_g2[j].newGene();
             auxGenes[j].setAllele(aux_a_g2[j].getAllele());
-        };
+        }
 
         if (i == 3) {
 
-            Conurbation conurbation = Conurbation.getConurbation();;
+            Conurbation conurbation = Conurbation.getConurbation();
             RandomGenerator generator = getConfiguration().getRandomGenerator();
-            ArrayList<String> aux = new ArrayList<String>();
+            List<String> aux = new ArrayList<String>();
             for (int j = 0; j < aux_a_g2.length; j++) {
-                aux_a_g2[j].setToRandomValue(generator);
-                aux.add(aux_a_g2[j].getAllele().toString());
-
-                if (aux_a_g2[j].getAllele().toString().equals("") || !conurbation.validTrip(aux)) {
-                    aux_a_g2[j].setToRandomValue(generator);
-                    aux.remove(j);
-                    j = j - 1;
-                }
+                j = GeneticAlgorithm.getJ(conurbation, aux_a_g2, generator, aux, j);
             }
 
         } else if (!a_g1[3].getAllele().toString().equals(a_g2[i + 1].getAllele().toString())) {
@@ -233,7 +216,8 @@ public class MyGreedyCrossover
 
         }
 
-        return aux_a_g2;
+        return aux_a_g2;*/
+        return a_g1;
     }
 
     protected Gene findNext(final Gene[] a_g, final Gene a_x) {

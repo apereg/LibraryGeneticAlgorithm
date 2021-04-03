@@ -1,19 +1,12 @@
 package com.adrip.ce;
 
-import com.adrip.ce.librarygeneticalgorithm.Conurbation;
-import com.adrip.ce.librarygeneticalgorithm.Evaluation;
 import com.adrip.ce.librarygeneticalgorithm.GeneticAlgorithm;
-import com.adrip.ce.librarygeneticalgorithm.MyGreedyCrossover;
-import org.jgap.*;
-import org.jgap.impl.DefaultConfiguration;
-import org.jgap.impl.StringGene;
-import org.jgap.impl.SwappingMutationOperator;
-
-import java.util.ArrayList;
 
 public class Main {
 
-    public static int[][] DISTANCES = {{20,40,10,0,0}, {20,5,15,0,0}, {40,5,10,0,0}, {10,15,10,0,0}, {0,0,0,0,0}, {0,0,0,0,0}};
+    public static final int GENERATIONS = 10;
+    public static final int CHROMOSOMES = 10;
+    public static int[][] DISTANCES = {{20, 40, 10, 0, 0}, {20, 5, 15, 0, 0}, {40, 5, 10, 0, 0}, {10, 15, 10, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}};
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
@@ -38,5 +31,13 @@ public class Main {
 
     public static int[] getDistances(int index) {
         return Main.DISTANCES[index];
+    }
+
+    public static int getGenerations() {
+        return Main.GENERATIONS;
+    }
+
+    public static int getChromosomes() {
+        return Main.CHROMOSOMES;
     }
 }
