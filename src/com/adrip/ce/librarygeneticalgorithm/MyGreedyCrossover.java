@@ -187,14 +187,14 @@ public class MyGreedyCrossover
 
         if (i == 3) {
 
-            Map map = new Map();
+            Conurbation conurbation = Conurbation.getConurbation();;
             RandomGenerator generator = getConfiguration().getRandomGenerator();
             ArrayList<String> aux = new ArrayList<String>();
             for (int j = 0; j < aux_a_g2.length; j++) {
                 aux_a_g2[j].setToRandomValue(generator);
                 aux.add(aux_a_g2[j].getAllele().toString());
 
-                if (aux_a_g2[j].getAllele().toString().equals("") || !map.validTrip(aux)) {
+                if (aux_a_g2[j].getAllele().toString().equals("") || !conurbation.validTrip(aux)) {
                     aux_a_g2[j].setToRandomValue(generator);
                     aux.remove(j);
                     j = j - 1;

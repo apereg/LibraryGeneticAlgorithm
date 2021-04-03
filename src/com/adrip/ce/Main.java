@@ -1,7 +1,8 @@
 package com.adrip.ce;
 
-import com.adrip.ce.librarygeneticalgorithm.Map;
-import com.adrip.ce.librarygeneticalgorithm.MyFitnessFunction;
+import com.adrip.ce.librarygeneticalgorithm.Conurbation;
+import com.adrip.ce.librarygeneticalgorithm.Evaluation;
+import com.adrip.ce.librarygeneticalgorithm.GeneticAlgorithm;
 import com.adrip.ce.librarygeneticalgorithm.MyGreedyCrossover;
 import org.jgap.*;
 import org.jgap.impl.DefaultConfiguration;
@@ -12,68 +13,30 @@ import java.util.ArrayList;
 
 public class Main {
 
+    public static int[][] DISTANCES = {{20,40,10,0,0}, {20,5,15,0,0}, {40,5,10,0,0}, {10,15,10,0,0}, {0,0,0,0,0}, {0,0,0,0,0}};
+
     public static void main(String[] args) throws Exception {
-
         long start = System.currentTimeMillis();
-        Configuration conf = new DefaultConfiguration();
-        FitnessFunction myFunc = new MyFitnessFunction();
-        Map map = new Map();
-        System.out.println(map.printMap() + "\n");
-        int populationSize = 5;
-
-        Gene[] genes = new Gene[4];
-
-        String validAlphabet = "ABCD";
-
-        genes[0] = new StringGene(conf, 0, 1, validAlphabet);
-        genes[1] = new StringGene(conf, 0, 1, validAlphabet);
-        genes[2] = new StringGene(conf, 0, 1, validAlphabet);
-        genes[3] = new StringGene(conf, 0, 1, validAlphabet);
-
-        IChromosome chromosome = new Chromosome(conf, genes);
-
-        conf.getGeneticOperators().clear();
-        conf.setSampleChromosome(chromosome);
-        conf.setPopulationSize(populationSize);
-        conf.setFitnessFunction(myFunc);
-        conf.addGeneticOperator(new MyGreedyCrossover(conf));
-        conf.addGeneticOperator(new SwappingMutationOperator(conf, 5));
-        conf.setKeepPopulationSizeConstant(true);
-
-        IChromosome[] population = new IChromosome[populationSize];
-        for (int i = 0; i < populationSize; i++) {
-
-            Gene[] newGenes = new Gene[4];
-            RandomGenerator generator = conf.getRandomGenerator();
-            ArrayList<String> aux = new ArrayList<String>();
-            for (int j = 0; j < genes.length; j++) {
-                newGenes[j] = genes[j].newGene();
-                newGenes[j].setToRandomValue(generator);
-                aux.add(newGenes[j].getAllele().toString());
-
-                if (newGenes[j].getAllele().toString().equals("") || !map.validTrip(aux)) {
-                    newGenes[j].setToRandomValue(generator);
-                    aux.remove(j);
-                    j = j - 1;
-                }
-            }
-
-            population[i] = new Chromosome(conf, newGenes);
-
-        }
-
-        Genotype genotype = new Genotype(conf, new Population(conf, population));
-
-        genotype.evolve(10);
-        IChromosome fittest = genotype.getFittestChromosome();
-        System.out.println("Fittest Chromosome is "
-                + fittest.getGene(0).getAllele().toString()
-                + fittest.getGene(1).getAllele().toString()
-                + fittest.getGene(2).getAllele().toString()
-                + fittest.getGene(3).getAllele().toString()
-                + " with value "
-                + fittest.getFitnessValue());
+        Main.checkDistances();
+        GeneticAlgorithm algorithm = new GeneticAlgorithm();
+        algorithm.run();
         long time = System.currentTimeMillis() - start;
         System.out.println("\nEl algoritmo ha tardado " + time + " ms.");
+    }
+
+    private static void checkDistances() {
+        /*for (int i = 0; i < DISTANCES.length; i++) {
+            for (int j = 0; j < DISTANCES[0].length; j++) {
+                if(DISTANCES[i][j] == )
+            }
+        }*/
+    }
+
+    public static int getCitiesNumber() {
+        return Main.DISTANCES.length;
+    }
+
+    public static int[] getDistances(int index) {
+        return Main.DISTANCES[index];
     }
 }
