@@ -14,6 +14,8 @@ public class Conurbation {
 
     private final List<City> cities;
 
+    private final City originCity;
+
     public static Conurbation getConurbation() {
         if (instance == null)
             instance = new Conurbation();
@@ -24,15 +26,16 @@ public class Conurbation {
         this.cities = new LinkedList<>();
         for (int i = 0; i < Main.getCitiesNumber(); i++)
             this.cities.add(new City(i, Main.getDistances(i)));
+        this.originCity = this.cities.get(Main.getCityChosen());
     }
 
     public int tripLength(IChromosome trip) {
 
         int length = 0;
 
-        List<String> chromosome = new LinkedList<>();
+        List<Integer> chromosome = new LinkedList<>();
         for (int i = 0; i < trip.getGenes().length; i++) {
-            chromosome.add(trip.getGene(i).getAllele().toString());
+            chromosome.add(Integer.parseInt(trip.getGene(i).getAllele().toString()));
         }
 
         if (this.validTrip(chromosome)) {
@@ -64,7 +67,7 @@ public class Conurbation {
         return length;
     }
 
-    public boolean validTrip(List<String> trip) {
+    public boolean validTrip(List<Integer> trip) {
         for (int i = 0; i < trip.size() - 1; i++)
             for (int j = i + 1; j < trip.size(); j++)
                 if (trip.get(i).equals(trip.get(j)))
@@ -73,15 +76,12 @@ public class Conurbation {
     }
 
     public int maxValue() {
-        return 20 + 40 + 10 + 5 + 15 + 10;
-    }
-
-    public City getCity(int id) {
-        return this.cities.get(id);
-    }
-
-    public int getDistance(int cityA, int cityB) {
-        return this.cities.get(cityA).getDistance(cityB);
+        int max = 0;
+        for (int i = 0; i < Main.getCitiesNumber(); i++)
+            for (int j = 0; j < Main.getCitiesNumber(); j++)
+                if (i < j)
+                    max += this.cities.get(i).getDistance(j);
+        return max;
     }
 
     @Override
