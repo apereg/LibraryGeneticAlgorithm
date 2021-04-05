@@ -31,24 +31,19 @@ public class Conurbation {
 
     public int routeLength(IChromosome chromosome) {
         if (this.isValidRoute(chromosome)) {
-            System.out.println("Se va a evaluar el cromosoma " + Utils.getChromosomeToString(chromosome));
             int length = 0;
             int[] route = Utils.getChromosomeAsArray(chromosome);
             for (int i = 0; i < Main.getCitiesNumber() - 1; i++) {
                 int distance = cities.get(route[i]).getDistance(route[i + 1]);
-                System.out.println(Utils.getCityCode(route[i]) + "-" + Utils.getCityCode(route[i + 1]) + ": " + distance);
                 if (distance == Integer.MAX_VALUE)
                     return Integer.MAX_VALUE;
                 length += distance;
             }
 
             int finalDistance = cities.get(route[Main.getCitiesNumber() - 1]).getDistance(route[0]);
-            System.out.println(Utils.getCityCode(route[Main.getCitiesNumber() - 1]) + "-" + Utils.getCityCode(route[0]) + ": " + finalDistance);
             if (finalDistance == Integer.MAX_VALUE)
                 return Integer.MAX_VALUE;
             length += finalDistance;
-
-            System.out.println(length);
             return length;
         }
         return Integer.MAX_VALUE;

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class GeneticAlgorithm {
 
-    private Configuration configuration;
+    private static Configuration configuration;
 
     public GeneticAlgorithm() {
         /* Se crea el mapa de la ciudad. */
@@ -24,27 +24,27 @@ public class GeneticAlgorithm {
         System.out.println("Comienza el algoritmo genetico");
 
         /* Se crea la configuracion heredada de la por defecto. */
-        this.configuration = new DefaultConfiguration();
-        this.configuration.getGeneticOperators().clear();
+        configuration = new DefaultConfiguration();
+        configuration.getGeneticOperators().clear();
         /* Se marca el tamaño de la poblacion. */
-        this.configuration.setPopulationSize(Main.getChromosomes());
-        this.configuration.setKeepPopulationSizeConstant(true);
+        configuration.setPopulationSize(Main.getChromosomes() - 1);
+        configuration.setKeepPopulationSizeConstant(true);
         /* Se asignan la evaluacion y crossover a funciones dedicadas. */
-        this.configuration.setFitnessFunction(new Evaluation());
-        this.configuration.addGeneticOperator(new Crossover(this.configuration));
+        configuration.setFitnessFunction(new Evaluation());
+        configuration.addGeneticOperator(new Crossover(configuration));
         /* Se marca el tipo de mutacion. */
-        this.configuration.addGeneticOperator(new SwappingMutationOperator(this.configuration, 5));
+        configuration.addGeneticOperator(new SwappingMutationOperator(configuration, Main.getMutationProb()));
         /* Se marca un cromosoma de ejemplo para la configuracion. */
-        IChromosome chromosome = new Chromosome(this.configuration, this.createGeneChain());
-        this.configuration.setSampleChromosome(chromosome);
+        IChromosome chromosome = new Chromosome(configuration, this.createGeneChain());
+        configuration.setSampleChromosome(chromosome);
 
         /* Se crean todos los cromosomas con un metodo externo para crear la poblacion inicial. */
         IChromosome[] population = new IChromosome[Main.getChromosomes()];
         for (int i = 0; i < Main.getChromosomes(); i++)
-            population[i] = new Chromosome(this.configuration, this.createGeneChain());
+            population[i] = new Chromosome(configuration, this.createGeneChain());
 
         /* Se crea el algoritmo genetico con la poblacion generada y se evoluciona el numero de generaciones marcada. */
-        Genotype genotype = new Genotype(this.configuration, new Population(this.configuration, population));
+        Genotype genotype = new Genotype(configuration, new Population(configuration, population));
         genotype.evolve(Main.getGenerations());
 
         /* Se obtiene el mejor cromosoma. */
@@ -66,7 +66,7 @@ public class GeneticAlgorithm {
 
         /* Se añade como primer gen del cromosoma la ciudad elegida como origen. */
         chromosome.add(Main.getCityChosen());
-        geneChain[0] = new IntegerGene(this.configuration, 0, Main.getCitiesNumber() - 1);
+        geneChain[0] = new IntegerGene(configuration, 0, Main.getCitiesNumber() - 1);
         geneChain[0].setAllele(chromosome.get(0));
 
         boolean valid;
@@ -78,11 +78,20 @@ public class GeneticAlgorithm {
                 random = Utils.generateRandom(0, Main.getCitiesNumber() - 1);
                 if (!chromosome.contains(random)) {
                     chromosome.add(random);
-                    geneChain[i] = new IntegerGene(this.configuration, 0, Main.getCitiesNumber() - 1);
+                    geneChain[i] = new IntegerGene(configuration, 0, Main.getCitiesNumber() - 1);
                     geneChain[i].setAllele(random);
                     valid = true;
                 }
             }
+        }
+        return geneChain;
+    }
+
+    public static Gene[] createGeneChain(List<Integer> chromosomeList) throws InvalidConfigurationException {
+        Gene[] geneChain = new Gene[Main.getCitiesNumber()];
+        for (int i = 0; i < geneChain.length; i++) {
+            geneChain[i] = new IntegerGene(GeneticAlgorithm.configuration, 0, Main.getCitiesNumber() - 1);
+            geneChain[i].setAllele(chromosomeList.get(i));
         }
         return geneChain;
     }
@@ -99,82 +108,85 @@ class Evaluation extends FitnessFunction {
 
 class Crossover extends BaseGeneticOperator {
 
-    private int startOffset = 1;
 
     public Crossover(Configuration c) throws InvalidConfigurationException {
         super(c);
     }
 
-    public void operate(final Population a_population,
-                        final List a_candidateChromosomes) {
-        int size = Math.min(getConfiguration().getPopulationSize(),
-                a_population.size());
-        int numCrossovers = (2 * size) / 3;
-        RandomGenerator generator = getConfiguration().getRandomGenerator();
-        // For each crossover, grab two random chromosomes and do what
-        // Grefenstette et al say.
-        // --------------------------------------------------------------
-        for (int i = 0; i < numCrossovers; i++) {
-            IChromosome origChrom1 = a_population.getChromosome(generator.
-                    nextInt(size));
-            IChromosome firstMate = (IChromosome) origChrom1.clone();
-            IChromosome origChrom2 = a_population.getChromosome(generator.
-                    nextInt(size));
-            IChromosome secondMate = (IChromosome) origChrom2.clone();
-            // In case monitoring is active, support it.
-            // -----------------------------------------
-            if (m_monitorActive) {
-                firstMate.setUniqueIDTemplate(origChrom1.getUniqueID(), 1);
-                firstMate.setUniqueIDTemplate(origChrom2.getUniqueID(), 2);
-                secondMate.setUniqueIDTemplate(origChrom1.getUniqueID(), 1);
-                secondMate.setUniqueIDTemplate(origChrom2.getUniqueID(), 2);
+    public void operate(Population population, List chromosomes) {
+        Main.debugCrossover("------------------------------------*------------------------------------");
+        Main.debugCrossover("Va a comenzar el cruce de la poblacion");
+        Main.debugCrossover("El metodo escogido es el usado en los apuntes del aula virtual:");
+        Main.debugCrossover("\tSe selecciona un intervalo del primer cromosoma");
+        Main.debugCrossover("\tSe introduce en el segundo cromosoma respetando el orden relativo");
+        Main.debugCrossover("Probabilidad de crossover: " + Main.getCrossoverProb() + "%");
+        IChromosome c1, c2;
+        for (int i = 0; i < Main.getChromosomes(); i += 2) {
+            if ((i + 1) == population.size())
+                break;
+            Main.debugCrossover("\nCruzando cromosomas " + (i + 1) + " y " + (i + 2));
+            if (Utils.generateRandom(0, 99) < Main.getCrossoverProb()) {
+                /* Se cruzan de dos en dos. */
+                c1 = population.getChromosome(i);
+                c2 = population.getChromosome(i + 1);
+                /* Se añaden a la lista de candidatos para la seleccion. */
+                try {
+                    chromosomes.add(geneCrossover(c1, c2));
+                    chromosomes.add(geneCrossover(c2, c1));
+                } catch (InvalidConfigurationException e) {
+                    System.out.println("Error en el cruce");
+                }
+            } else {
+                Main.debugCrossover("No se cruzan por probabilidad de cruzamiento");
             }
-
-            geneCrossover(firstMate, secondMate);
-            // Add the modified chromosomes to the candidate pool so that
-            // they'll be considered for natural selection during the next
-            // phase of evolution.
-            // -----------------------------------------------------------
-            a_candidateChromosomes.add(firstMate);
-            a_candidateChromosomes.add(secondMate);
         }
+        Main.debugCrossover("------------------------------------*------------------------------------\n");
     }
 
-    public void geneCrossover(IChromosome chromosome1, IChromosome chromosome2) {
-        //try {
-        /* Para cruzar se selecciona un punto de corte y se cambia el orden con el del siguiente cromosoma. */
-        Gene[] aux = new Gene[Main.getCitiesNumber()];
-        int crossoverPoint = Utils.generateRandom(0, (Main.getCitiesNumber() - 1));
-        //TODO el crossover de los cojones
-        //} catch (InvalidConfigurationException ignored) {}
-    }
+    public IChromosome geneCrossover(IChromosome chromosome1, IChromosome chromosome2) throws InvalidConfigurationException {
+        /* Para cruzar se seleccionan dos puntos de corte y se cambia el orden con el segmento generado. */
+        int crossoverPoint1 = Utils.generateRandom(0, Main.getCitiesNumber() - 1);
+        int crossoverPoint2 = Utils.generateRandom(crossoverPoint1, Main.getCitiesNumber() - 1);
+        List<Integer> segment = new LinkedList<>();
+        for (int i = crossoverPoint1; i <= crossoverPoint2; i++)
+            segment.add((Integer) chromosome1.getGene(i).getAllele());
 
-    public void setStartOffset(int offset) {
-        this.startOffset = offset;
-    }
-
-    public int getStartOffset() {
-        return this.startOffset;
-    }
-
-    /**
-     * Compares the given GeneticOperator to this GeneticOperator.
-     *
-     * @param a_other the instance against which to compare this instance
-     * @return a negative number if this instance is "less than" the given
-     * instance, zero if they are equal to each other, and a positive number if
-     * this is "greater than" the given instance
-     * @author Klaus Meffert
-     * @since 2.6
-     */
-    public int compareTo(final Object a_other) {
-        if (a_other == null) {
-            return 1;
+        List<Integer> chromosome2List = Utils.getChromosomeAsList(chromosome2);
+        List<Integer> sonList = new LinkedList<>();
+        Main.debugCrossover("Se van a hacer el hijo de " + Utils.getChromosomeToString(chromosome1) + " y " + Utils.getChromosomeToString(chromosome2));
+        Main.debugCrossover("Intervalo de cruce [" + (crossoverPoint1 + 1) + ", " + (crossoverPoint2 + 1) + "]");
+        /* Se completa con genes de c2 no incluidos en el segmento de c1 hasta la posicion en la que insertar el segmento. */
+        int solutionIter = 0;
+        while (sonList.size() < crossoverPoint1 && solutionIter < Main.getCitiesNumber()) {
+            if (!segment.contains(chromosome2List.get(solutionIter))) {
+                sonList.add(chromosome2List.get(solutionIter));
+            }
+            solutionIter++;
         }
-        Crossover op = (Crossover) a_other;
-        // start offset less, meaning more to do --> return 1 for "is greater than"
-        // Everything is equal. Return zero.
-        // ---------------------------------
-        return Integer.compare(op.getStartOffset(), getStartOffset());
+
+        /* Se añade el segmento extraido de c1. */
+        sonList.addAll(segment);
+
+        /* Se completa con los genes restantes de c2. */
+        solutionIter = 0;
+        while (sonList.size() != Main.getCitiesNumber() && solutionIter < Main.getCitiesNumber()) {
+            if (!sonList.contains(chromosome2List.get(solutionIter))) {
+                sonList.add(chromosome2List.get(solutionIter));
+            }
+            solutionIter++;
+        }
+        Main.debugCrossover("Cromosoma hijo: " + Utils.getChromosomeToString(sonList));
+
+
+        /* Se convierte el hijo de lista de enteros a objeto cromosoma (clonado del primer cromosoma para obtener la configuracion del algoritmo). */
+        IChromosome son = (IChromosome) chromosome1.clone();
+        son.setGenes(GeneticAlgorithm.createGeneChain(sonList));
+        return son;
     }
+
+    @Override
+    public int compareTo(Object other) {
+        return 0;
+    }
+
 }

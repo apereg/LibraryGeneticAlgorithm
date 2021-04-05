@@ -3,7 +3,10 @@ package com.adrip.ce.utils;
 import com.adrip.ce.Main;
 import org.jgap.Gene;
 import org.jgap.IChromosome;
+import org.jgap.impl.IntegerGene;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Utils {
@@ -29,17 +32,31 @@ public class Utils {
     }
 
     public static int[] getChromosomeAsArray(IChromosome chromosome) {
-        int[] route = new int[Main.getCitiesNumber()];
+        int[] chromosomeArray = new int[Main.getCitiesNumber()];
         for (int i = 0; i < Main.getCitiesNumber(); i++)
-            route[i] = (Integer) chromosome.getGene(i).getAllele();
-        return route;
+            chromosomeArray[i] = (Integer) chromosome.getGene(i).getAllele();
+        return chromosomeArray;
+    }
+
+    public static List<Integer> getChromosomeAsList(IChromosome chromosome) {
+        List<Integer> chromosomeList = new LinkedList<>();
+        for (int i = 0; i < Main.getCitiesNumber(); i++)
+            chromosomeList.add((Integer) chromosome.getGene(i).getAllele());
+        return chromosomeList;
     }
 
     public static String getChromosomeToString(IChromosome chromosome) {
-        int[] c = Utils.getChromosomeAsArray(chromosome);
+        int[] chromosomeArray = Utils.getChromosomeAsArray(chromosome);
         StringBuilder str = new StringBuilder();
-        for (int i = 0; i < c.length; i++)
-            str.append(Utils.getCityCode(c[i]));
+        for (int j : chromosomeArray) str.append(Utils.getCityCode(j));
+        return str.toString();
+    }
+
+    public static String getChromosomeToString(List<Integer> chromosomeList) {
+        StringBuilder str = new StringBuilder();
+        for (int gene: chromosomeList)
+            str.append(Utils.getCityCode(gene));
+
         return str.toString();
     }
 }
