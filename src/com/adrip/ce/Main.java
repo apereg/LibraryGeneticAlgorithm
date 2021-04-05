@@ -2,15 +2,13 @@ package com.adrip.ce;
 
 import com.adrip.ce.librarygeneticalgorithm.GeneticAlgorithm;
 
-import java.security.PublicKey;
-
 public class Main {
 
     public static final int GENERATIONS = 150;
     public static final int CHROMOSOMES = 10;
     /* A=0, B=1, C=2 ... */
     public static final int CITY_CHOSEN = 0;
-    public static int[][] DISTANCES = {{20, 40, 10, 0, 0}, {20, 5, 15, 0, 0}, {40, 5, 10, 0, 0}, {10, 15, 10, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}};
+    public static int[][] DISTANCES = {{5, 10, 20, Integer.MAX_VALUE, 10}, {5, 20, Integer.MAX_VALUE, 15, 1}, {10, 20, 10, 15, 50}, {20, Integer.MAX_VALUE, 10, 25, 20}, {Integer.MAX_VALUE, 15, 15, 25, 100}, {10, 1, 50, 20, 100}};
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();

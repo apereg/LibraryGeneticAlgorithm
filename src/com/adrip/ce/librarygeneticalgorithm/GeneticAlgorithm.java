@@ -57,7 +57,7 @@ public class GeneticAlgorithm {
 
         /* Se imprime la informacion de este cromosoma. */
         System.out.println("Acaba el algoritmo genetico tras " + Main.getGenerations() + " generaciones.");
-        System.out.println("El mejor cromosoma es " + bestGeneChain.toString() + " (Distancia total: " + bestChromosome.getFitnessValue() + ")");
+        System.out.println("El mejor cromosoma es " + bestGeneChain.toString() + " (Distancia total: " + (Integer.MAX_VALUE - bestChromosome.getFitnessValue()) + ")");
     }
 
     private Gene[] createGeneChain() throws InvalidConfigurationException {
@@ -66,7 +66,7 @@ public class GeneticAlgorithm {
 
         /* Se añade como primer gen del cromosoma la ciudad elegida como origen. */
         chromosome.add(Main.getCityChosen());
-        geneChain[0] = new IntegerGene(this.configuration, 0, Main.getCitiesNumber()-1);
+        geneChain[0] = new IntegerGene(this.configuration, 0, Main.getCitiesNumber() - 1);
         geneChain[0].setAllele(chromosome.get(0));
 
         boolean valid;
@@ -74,11 +74,11 @@ public class GeneticAlgorithm {
         for (int i = 1; i < Main.getCitiesNumber(); i++) {
             valid = false;
             /* Se generan valores aleatorios hasta obtener las permutaciones del resto de ciudades. */
-            while (!valid){
+            while (!valid) {
                 random = Utils.generateRandom(0, Main.getCitiesNumber() - 1);
                 if (!chromosome.contains(random)) {
                     chromosome.add(random);
-                    geneChain[i] = new IntegerGene(this.configuration, 0, Main.getCitiesNumber()-1);
+                    geneChain[i] = new IntegerGene(this.configuration, 0, Main.getCitiesNumber() - 1);
                     geneChain[i].setAllele(random);
                     valid = true;
                 }
@@ -92,8 +92,7 @@ public class GeneticAlgorithm {
 class Evaluation extends FitnessFunction {
 
     public double evaluate(IChromosome chromosome) {
-        Conurbation conurbation = Conurbation.getConurbation();
-        return conurbation.maxValue() - conurbation.tripLength(chromosome);
+        return Integer.MAX_VALUE - Conurbation.getConurbation().routeLength(chromosome);
     }
 
 }
