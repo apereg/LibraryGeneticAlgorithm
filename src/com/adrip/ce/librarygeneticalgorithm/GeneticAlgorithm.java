@@ -1,6 +1,7 @@
 package com.adrip.ce.librarygeneticalgorithm;
 
 import com.adrip.ce.Main;
+import com.adrip.ce.utils.Colors;
 import com.adrip.ce.utils.Utils;
 import org.jgap.*;
 import org.jgap.impl.DefaultConfiguration;
@@ -21,7 +22,7 @@ public class GeneticAlgorithm {
     }
 
     public void run() throws InvalidConfigurationException {
-        System.out.println("Comienza el algoritmo genetico");
+        System.out.println(Colors.RED + "Comienza el algoritmo genetico" + Colors.RESET);
 
         /* Se crea la configuracion heredada de la por defecto. */
         configuration = new DefaultConfiguration();
@@ -40,8 +41,16 @@ public class GeneticAlgorithm {
 
         /* Se crean todos los cromosomas con un metodo externo para crear la poblacion inicial. */
         IChromosome[] population = new IChromosome[Main.getChromosomes()];
-        for (int i = 0; i < Main.getChromosomes(); i++)
+        Main.debugCreate("------------------------------------*------------------------------------");
+        Main.debugCreate("Se va a crear la poblacion inicial con valores al azar de 1 al numero de ciudades (" + Main.getCitiesNumber() + ")");
+        Main.debugCreate("\tRealmente por motivos de estructuras de datos en java se decrementa este conjunto a [0-" + (Main.getCitiesNumber() - 1) + "]\n");
+        Main.debugCreate("Se van a crear " + Main.getChromosomes() + " cromosomas");
+        for (int i = 0; i < Main.getChromosomes(); i++) {
             population[i] = new Chromosome(configuration, this.createGeneChain());
+            Main.debugCrossover("\tCromosoma " + (i + 1) + ":\t" + Utils.getChromosomeToIntString(population[i]) + " (" + Utils.getChromosomeToString(population[i]) + ")");
+        }
+        Main.debugCreate("Creada con exito la poblacion inicial");
+        Main.debugCreate("------------------------------------*------------------------------------\n");
 
         /* Se crea el algoritmo genetico con la poblacion generada y se evoluciona el numero de generaciones marcada. */
         Genotype genotype = new Genotype(configuration, new Population(configuration, population));
@@ -50,14 +59,9 @@ public class GeneticAlgorithm {
         /* Se obtiene el mejor cromosoma. */
         IChromosome bestChromosome = genotype.getFittestChromosome();
 
-        /* Se convierte la cadena de genes del mejor cromosoma a las letras. */
-        StringBuilder bestGeneChain = new StringBuilder();
-        for (int i = 0; i < Main.getCitiesNumber(); i++)
-            bestGeneChain.append(Utils.getCityCode((Integer) bestChromosome.getGene(i).getAllele()));
-
         /* Se imprime la informacion de este cromosoma. */
-        System.out.println("Acaba el algoritmo genetico tras " + Main.getGenerations() + " generaciones.");
-        System.out.println("El mejor cromosoma es " + bestGeneChain.toString() + " (Distancia total: " + (Integer.MAX_VALUE - bestChromosome.getFitnessValue()) + ")");
+        System.out.println(Colors.RED + "Acaba el algoritmo genetico tras " + Main.getGenerations() + " generaciones.\n" + Colors.RESET);
+        System.out.println("La ruta mas optima es " + Utils.getChromosomeToString(bestChromosome) + " (Distancia total: " + (Integer.MAX_VALUE - bestChromosome.getFitnessValue()) + ")");
     }
 
     private Gene[] createGeneChain() throws InvalidConfigurationException {
@@ -101,6 +105,7 @@ public class GeneticAlgorithm {
 class Evaluation extends FitnessFunction {
 
     public double evaluate(IChromosome chromosome) {
+        /* Como las opciones de JGAP proporcionan maximizacion de aptitud utilizamos una funcion inversora para minimizar la distancia. */
         return Integer.MAX_VALUE - Conurbation.getConurbation().routeLength(chromosome);
     }
 

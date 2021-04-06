@@ -1,7 +1,5 @@
 package com.adrip.ce.librarygeneticalgorithm;
 
-import java.util.Arrays;
-
 public class City {
 
     private final int id;
@@ -19,11 +17,4 @@ public class City {
         return distances[idOtherCity];
     }
 
-    @Override
-    public String toString() {
-        return "City{" +
-                "id=" + id +
-                ", distances=" + Arrays.toString(distances) +
-                '}';
-    }
 }

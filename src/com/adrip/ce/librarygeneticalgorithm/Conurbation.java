@@ -1,7 +1,6 @@
 package com.adrip.ce.librarygeneticalgorithm;
 
 import com.adrip.ce.Main;
-import com.adrip.ce.utils.Colors;
 import com.adrip.ce.utils.Utils;
 import org.jgap.IChromosome;
 
@@ -17,35 +16,57 @@ public class Conurbation {
     private final City originCity;
 
     public static Conurbation getConurbation() {
+        /* Clase de instancia unica o Singleton. */
         if (instance == null)
             instance = new Conurbation();
         return instance;
     }
 
     private Conurbation() {
+        /* Se rellena la lista de ciudades con su id y distancias. */
         this.cities = new LinkedList<>();
         for (int i = 0; i < Main.getCitiesNumber(); i++)
             this.cities.add(new City(i, Main.getDistances(i)));
+        /* Se marca la ciudad origen para el problema del viajante. */
         this.originCity = this.cities.get(Main.getCityChosen());
     }
 
     public int routeLength(IChromosome chromosome) {
+        /* Solo se comprueba si la ruta es valida, si no distancia infinita. */
+        Main.debugEvaluate("------------------------------------*------------------------------------");
+        Main.debugEvaluate("Se va a evaluar el cromosoma " + Utils.getChromosomeToString(chromosome));
         if (this.isValidRoute(chromosome)) {
             int length = 0;
             int[] route = Utils.getChromosomeAsArray(chromosome);
+            /* Se comprueba la distancia entre las ciudades del cromosoma y si no es infinita se va sumando. */
             for (int i = 0; i < Main.getCitiesNumber() - 1; i++) {
                 int distance = cities.get(route[i]).getDistance(route[i + 1]);
-                if (distance == Integer.MAX_VALUE)
+                Main.debugEvaluate("La distancia entre " + Utils.getCityCode(route[i]) + " y " + Utils.getCityCode(route[i + 1]) + " es " + ((distance == Integer.MAX_VALUE) ? "infinita" : distance));
+                if (distance == Integer.MAX_VALUE) {
+                    /* Si alguna distancia es infinita se devuelve infinito. */
+                    Main.debugEvaluate("Distancia total = infinita");
+                    Main.debugEvaluate("------------------------------------*------------------------------------\n");
                     return Integer.MAX_VALUE;
+                }
                 length += distance;
             }
 
+            /* Se realiza la misma comprobacion desde la ultima ciudad del cromosoma al inicio. */
             int finalDistance = cities.get(route[Main.getCitiesNumber() - 1]).getDistance(route[0]);
-            if (finalDistance == Integer.MAX_VALUE)
+            Main.debugEvaluate("La distancia entre " + Utils.getCityCode(route[Main.getCitiesNumber() - 1]) + " y " + Utils.getCityCode(route[0]) + " es " + ((finalDistance == Integer.MAX_VALUE) ? "infinita" : finalDistance));
+            if (finalDistance == Integer.MAX_VALUE) {
+                Main.debugEvaluate("Distancia total = infinita");
+                Main.debugEvaluate("------------------------------------*------------------------------------\n");
                 return Integer.MAX_VALUE;
+            }
+
             length += finalDistance;
+            Main.debugEvaluate("Distancia total = " + length);
+            Main.debugEvaluate("------------------------------------*------------------------------------\n");
             return length;
         }
+        Main.debugEvaluate("No es una ruta valida, distancia infinita.");
+        Main.debugEvaluate("------------------------------------*------------------------------------\n");
         return Integer.MAX_VALUE;
     }
 
@@ -61,41 +82,14 @@ public class Conurbation {
         return true;
     }
 
-    public int maxValue() {
-        int max = 0;
-        for (int i = 0; i < Main.getCitiesNumber(); i++)
-            for (int j = 0; j < Main.getCitiesNumber(); j++)
-                if (i < j)
-                    max += this.cities.get(i).getDistance(j);
-        return max;
-    }
-
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("Mapa ciudades:\n");
-        str.append(Colors.RED + "A" + Colors.RESET + "----------------" + Colors.RED + "C" + Colors.RESET + "---------------" + Colors.RED + "E" + Colors.RESET + "\n");
-        str.append("|\\              /|\\             /|\n");
-        str.append("| \\            / | \\           / |\n");
-        str.append("|  \\          /  |  \\         /  |\n");
-        str.append("|   \\        /   |   \\       /   |\n");
-        str.append("|    \\      /    |    \\     /    |\n");
-        str.append("|     \\    /     |     \\   /     |\n");
-        str.append("|      \\  /      |      \\ /      |\n");
-        str.append("|       \\/       |       \\       |\n");
-        str.append("|       /\\       |      / \\      |\n");
-        str.append("|      /  \\      |     /   \\     |\n");
-        str.append("|     /    \\     |    /     \\    |\n");
-        str.append("|    /      \\    |   /       \\   |\n");
-        str.append("|   /        \\   |  /         \\  |\n");
-        str.append("|  /          \\  | /           \\ |\n");
-        str.append("| /            \\ |/             \\|\n");
-        str.append(Colors.RED + "D" + Colors.RESET + "----------------" + Colors.RED + "D" + Colors.RESET + "---------------" + Colors.RED + "F" + Colors.RESET + "\n");
-        str.append("\nDistancias:\n");
+        str.append("Mapa ciudades (Distancias):\n");
         for (int i = 0; i < Main.getCitiesNumber() - 1; i++)
             for (int j = 0; j < Main.getCitiesNumber(); j++)
                 if (i < j)
-                    str.append("\tDistancia ").append(Utils.getCityCode(i)).append(Utils.getCityCode(j)).append(": ").append(((this.cities.get(i).getDistance(j) == Integer.MAX_VALUE) ? "inf" : this.cities.get(i).getDistance(j))).append("\n");
+                    str.append("\tDistancia ").append(Utils.getCityCode(i)).append("-").append(Utils.getCityCode(j)).append(": ").append(((this.cities.get(i).getDistance(j) == Integer.MAX_VALUE) ? "infinita" : this.cities.get(i).getDistance(j))).append("\n");
         return str.deleteCharAt(str.length() - 1).toString();
     }
 

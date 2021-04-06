@@ -1,9 +1,7 @@
 package com.adrip.ce.utils;
 
 import com.adrip.ce.Main;
-import org.jgap.Gene;
 import org.jgap.IChromosome;
-import org.jgap.impl.IntegerGene;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,16 +17,13 @@ public class Utils {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
-    public static char getCityCode(int cityId) {
-        if (cityId < 0 || cityId > 25)
-            return '?';
 
-        cityId += 65;
-        return (char) cityId;
-    }
-
-    public static char getCityCode(Gene gene) {
-        return Utils.getCityCode(Integer.parseInt(gene.getAllele().toString()));
+    public static String getCityCode(int id) {
+        /* Se obtiene cada Letra de principio a final de forma recursiva. */
+        int quot = id / 26;
+        int actualLetter = id % 26;
+        char letter = (char) ((int) 'A' + actualLetter);
+        return ((quot == 0) ? "" + letter : getCityCode(quot - 1) + letter);
     }
 
     public static int[] getChromosomeAsArray(IChromosome chromosome) {
@@ -48,15 +43,20 @@ public class Utils {
     public static String getChromosomeToString(IChromosome chromosome) {
         int[] chromosomeArray = Utils.getChromosomeAsArray(chromosome);
         StringBuilder str = new StringBuilder();
-        for (int j : chromosomeArray) str.append(Utils.getCityCode(j));
-        return str.toString();
+        for (int j : chromosomeArray) str.append(Utils.getCityCode(j)).append("-");
+        return str.deleteCharAt(str.length() - 1).toString();
     }
 
     public static String getChromosomeToString(List<Integer> chromosomeList) {
         StringBuilder str = new StringBuilder();
-        for (int gene: chromosomeList)
-            str.append(Utils.getCityCode(gene));
+        for (int gene : chromosomeList) str.append(Utils.getCityCode(gene)).append("-");
+        return str.deleteCharAt(str.length() - 1).toString();
+    }
 
-        return str.toString();
+    public static String getChromosomeToIntString(IChromosome chromosome) {
+        int[] chromosomeArray = Utils.getChromosomeAsArray(chromosome);
+        StringBuilder str = new StringBuilder();
+        for (int j : chromosomeArray) str.append(j).append("-");
+        return str.deleteCharAt(str.length() - 1).toString();
     }
 }
