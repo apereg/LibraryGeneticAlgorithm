@@ -46,6 +46,8 @@ public class Main {
         if (Main.CITIES_NUMBER < 4)
             exceptions.append("\tEl numero de ciudades debe ser al menos 4\n");
         exceptions.append(Main.checkDistances());
+        if (Main.CITY_CHOSEN < 0 || Main.CITY_CHOSEN >= Main.CITIES_NUMBER)
+            exceptions.append("\tLa ciudad de origen debe ser una ciudad posible [0-" + (Main.CITIES_NUMBER - 1) + "]");
         if (Main.CHROMOSOMES < 1)
             exceptions.append("\tEl numero de cromosomas debe ser al menos 1\n");
         if (Main.GENERATIONS < 1)
@@ -59,7 +61,7 @@ public class Main {
 
         /* Si alguno de los parametros es inconsistente se muestra la información como excepcion. */
         if (exceptions.length() != 0)
-            throw new ModifiableParameterException("Listado de fallos:\n" + exceptions.toString());
+            throw new ModifiableParameterException("Listado de fallos:\n" + exceptions);
 
         /* Si todos los parametros son consistentes se muestra la informacion basica de ejecucion. */
         System.out.println("Configuracion de ejecucion:");
